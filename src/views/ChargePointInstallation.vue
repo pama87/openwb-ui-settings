@@ -457,13 +457,12 @@
 								Das Standard-Profil kann nicht umbenannt werden.
 							</template>
 						</openwb-base-text-input>
-
+						<hr />
 						<div
 							v-if="
 								$store.state.mqtt['openWB/optional/rfid/active']
 							"
 						>
-							<hr />
 							<openwb-base-heading>
 								Zugangskontrolle
 							</openwb-base-heading>
