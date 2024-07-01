@@ -286,6 +286,40 @@
 					</div>
 				</div>
 			</openwb-base-card>
+			<openwb-base-card title="OCPP Anbindung">
+					<openwb-base-text-input
+						title="URL"
+						required
+						subtype="user"
+						v-model="ocppData.url"
+					/>
+					<openwb-base-text-input
+						title="User"
+						required
+						subtype="user"
+						v-model="ocppData.idTag"
+					/>
+					<openwb-base-text-input
+						title="Status OCPP"
+						readonly
+						v-model="
+							$store.state.mqtt['openWB/optional/ocpp']
+						"
+					/>
+					
+			<openwb-base-click-button
+			class="col-4"
+								:class="
+									enableOcppConnectButton
+										? 'btn-success'
+										: 'btn-outline-success'
+								"
+								@buttonClicked="connectOcpp"
+							>
+								Mit OCPP verbinden
+							</openwb-base-click-button>
+						</openwb-base-card>
+				 
 			<openwb-base-submit-buttons
 				formName="generalChargeConfigForm"
 				@save="$emit('save')"
@@ -297,6 +331,7 @@
 </template>
 
 <script>
+
 import ComponentState from "../components/mixins/ComponentState.vue";
 import OpenwbElectricityTariffProxy from "../components/electricity_tariffs/OpenwbElectricityTariffProxy.vue";
 
@@ -306,6 +341,7 @@ export default {
 	components: {
 		OpenwbElectricityTariffProxy,
 	},
+	emits: ["sendCommand"],
 	data() {
 		return {
 			mqttTopicsToSubscribe: [
@@ -318,8 +354,14 @@ export default {
 				"openWB/general/prices/grid",
 				"openWB/general/prices/pv",
 				"openWB/optional/et/provider",
+				"openWB/optional/ocpp",
 				"openWB/system/configurable/electricity_tariffs",
 			],
+			enableOcppConnectButton: true,
+			ocppData: {
+				url: "",
+				idTag: "",
+			},
 		};
 	},
 	computed: {
@@ -330,6 +372,14 @@ export default {
 		},
 	},
 	methods: {
+		connectOcpp() {
+				this.$emit("save");
+				this.$emit("sendCommand", {
+					command: "connectOcpp",
+					data: this.ocppData,
+				});
+				this.enableOcppConnectButton = false;
+		},
 		getElectricityTariffDefaultConfiguration(electricityTariffType) {
 			const electricityTariffDefaults = this.electricityTariffList.find(
 				(element) => element.value == electricityTariffType,
