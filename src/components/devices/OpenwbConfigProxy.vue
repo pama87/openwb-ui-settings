@@ -1,6 +1,13 @@
 <template>
-	<component :is="myComponent" :configuration="configuration" :deviceId="deviceId" :deviceType="deviceType"
-		:componentId="componentId" :componentType="componentType" @update:configuration="updateConfiguration($event)" />
+	<component
+		:is="myComponent"
+		:configuration="configuration"
+		:deviceId="deviceId"
+		:deviceType="deviceType"
+		:componentId="componentId"
+		:componentType="componentType"
+		@update:configuration="updateConfiguration($event)"
+	/>
 </template>
 
 <script>
@@ -33,7 +40,10 @@ export default {
 				});
 			} else {
 				return defineAsyncComponent({
-					loader: () => import(`./${this.deviceVendor}/${this.deviceType}/device.vue`),
+					loader: () =>
+						import(
+							`./${this.deviceVendor}/${this.deviceType}/device.vue`
+						),
 					errorComponent: OpenwbDeviceConfigFallback,
 				});
 			}
