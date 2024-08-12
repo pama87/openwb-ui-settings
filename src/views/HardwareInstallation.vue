@@ -1,22 +1,12 @@
 <template>
 	<!-- modal dialogs -->
-	<openwb-base-modal-dialog
-		:show="showDeviceRemoveModal"
-		title="Gerät löschen"
-		subtype="danger"
-		:buttons="[{ text: 'Löschen', event: 'confirm', subtype: 'danger' }]"
-		@modal-result="removeDevice"
-	>
+	<openwb-base-modal-dialog :show="showDeviceRemoveModal" title="Gerät löschen" subtype="danger"
+		:buttons="[{ text: 'Löschen', event: 'confirm', subtype: 'danger' }]" @modal-result="removeDevice">
 		Wollen Sie das Gerät "{{ modalDeviceName }}" inklusive aller Komponenten
 		wirklich entfernen? Dieser Vorgang kann nicht rückgängig gemacht werden!
 	</openwb-base-modal-dialog>
-	<openwb-base-modal-dialog
-		:show="showComponentRemoveModal"
-		title="Komponente löschen"
-		subtype="danger"
-		:buttons="[{ text: 'Löschen', event: 'confirm', subtype: 'danger' }]"
-		@modal-result="removeComponent"
-	>
+	<openwb-base-modal-dialog :show="showComponentRemoveModal" title="Komponente löschen" subtype="danger"
+		:buttons="[{ text: 'Löschen', event: 'confirm', subtype: 'danger' }]" @modal-result="removeComponent">
 		Wollen Sie die Komponente "{{ modalComponentName }}" wirklich entfernen?
 		Dieser Vorgang kann nicht rückgängig gemacht werden!
 	</openwb-base-modal-dialog>
@@ -39,205 +29,130 @@
 					</openwb-base-alert>
 				</div>
 				<div v-else>
-					<openwb-base-card
-						v-for="(
+					<openwb-base-card v-for="(
 							installedDevice, installedDeviceKey
-						) in installedDevices"
-						:key="installedDevice.id"
-						:collapsible="true"
-						:collapsed="true"
-						subtype="dark"
-					>
+						) in installedDevices" :key="installedDevice.id" :collapsible="true" :collapsed="true" subtype="dark">
 						<template #header>
-							<font-awesome-icon
-								fixed-width
-								:icon="['fas', 'network-wired']"
-							/>
+							<font-awesome-icon fixed-width :icon="['fas', 'network-wired']" />
 							{{ installedDevice.name }}
 						</template>
 						<template #actions="slotProps">
-							<openwb-base-avatar
-								v-if="!slotProps.collapsed"
-								class="bg-danger clickable"
-								@click="
-									removeDeviceModal(
-										installedDevice.id,
-										installedDevice.name,
-										$event,
-									)
-								"
-							>
-								<font-awesome-icon
-									fixed-width
-									:icon="['fas', 'trash']"
-								/>
+							<openwb-base-avatar v-if="!slotProps.collapsed" class="bg-danger clickable" @click="
+		removeDeviceModal(
+			installedDevice.id,
+			installedDevice.name,
+			$event,
+		)
+		">
+								<font-awesome-icon fixed-width :icon="['fas', 'trash']" />
 							</openwb-base-avatar>
 							<div v-else>
-								<openwb-base-avatar
-									v-for="installedComponent in getMyInstalledComponents(
-										installedDevice.id,
-									)"
-									:key="installedComponent.id"
-									:class="
-										'ml-1 bg-' +
-										getComponentTypeClass(
-											installedComponent.type,
-										)
-									"
-								>
-									<font-awesome-icon
-										fixed-width
-										:icon="
-											getComponentTypeIcon(
-												installedComponent.type,
-											)
-										"
-									/>
+								<openwb-base-avatar v-for="installedComponent in getMyInstalledComponents(
+		installedDevice.id,
+	)" :key="installedComponent.id" :class="'ml-1 bg-' +
+		getComponentTypeClass(
+			installedComponent.type,
+		)
+		">
+									<font-awesome-icon fixed-width :icon="getComponentTypeIcon(
+		installedComponent.type,
+	)
+		" />
 								</openwb-base-avatar>
 							</div>
 						</template>
-						<openwb-base-text-input
-							title="Bezeichnung"
-							subtype="text"
-							:model-value="installedDevice.name"
+						<openwb-base-text-input title="Bezeichnung" subtype="text" :model-value="installedDevice.name"
 							@update:model-value="
-								updateState(installedDeviceKey, $event, 'name')
-							"
-						/>
+		updateState(installedDeviceKey, $event, 'name')
+		" />
 						<hr />
-						<openwb-config-proxy
-							:deviceId="installedDevice.id"
-							:deviceType="installedDevice.type"
-							:configuration="installedDevice.configuration"
+						<openwb-config-proxy :deviceId="installedDevice.id" :deviceType="installedDevice.type"
+							:deviceVendor="installedDevice.vendor" :configuration="installedDevice.configuration"
 							@update:configuration="
-								updateConfiguration(installedDeviceKey, $event)
-							"
-						/>
+		updateConfiguration(installedDeviceKey, $event)
+		" />
 						<hr />
 						<openwb-base-heading>Komponenten</openwb-base-heading>
-						<openwb-base-alert
-							v-if="
-								!deviceHasConfiguredComponents(
-									installedDevice.id,
-								)
-							"
-							subtype="warning"
-						>
+						<openwb-base-alert v-if="!deviceHasConfiguredComponents(
+		installedDevice.id,
+	)
+		" subtype="warning">
 							Es wurden noch keine Komponenten zu diesem Gerät
 							angelegt.
 						</openwb-base-alert>
-						<openwb-base-card
-							v-for="(
+						<openwb-base-card v-for="(
 								installedComponent, installedComponentKey
-							) in getMyInstalledComponents(installedDevice.id)"
-							:key="installedComponent.id"
-							:collapsible="true"
-							:collapsed="true"
-							:subtype="
-								getComponentTypeClass(installedComponent.type)
-							"
-						>
+							) in getMyInstalledComponents(installedDevice.id)" :key="installedComponent.id" :collapsible="true"
+							:collapsed="true" :subtype="getComponentTypeClass(installedComponent.type)
+		">
 							<template #header>
-								<font-awesome-icon
-									fixed-width
-									:icon="
-										getComponentTypeIcon(
-											installedComponent.type,
-										)
-									"
-								/>
+								<font-awesome-icon fixed-width :icon="getComponentTypeIcon(
+		installedComponent.type,
+	)
+		" />
 								{{ installedComponent.name }}
 							</template>
 							<template #actions="slotProps">
-								<openwb-base-avatar
-									v-if="!slotProps.collapsed"
-									class="bg-danger clickable"
-									@click="
-										removeComponentModal(
-											installedDevice.id,
-											installedComponent.id,
-											installedComponent.type,
-											installedComponent.name,
-											$event,
-										)
-									"
-								>
-									<font-awesome-icon
-										fixed-width
-										:icon="['fas', 'trash']"
-									/>
+								<openwb-base-avatar v-if="!slotProps.collapsed" class="bg-danger clickable" @click="
+		removeComponentModal(
+			installedDevice.id,
+			installedComponent.id,
+			installedComponent.type,
+			installedComponent.name,
+			$event,
+		)
+		">
+									<font-awesome-icon fixed-width :icon="['fas', 'trash']" />
 								</openwb-base-avatar>
 							</template>
-							<openwb-base-text-input
-								title="Bezeichnung"
-								subtype="text"
-								:model-value="installedComponent.name"
-								@update:model-value="
-									updateState(
-										installedComponentKey,
-										$event,
-										'name',
-									)
-								"
-							/>
+							<openwb-base-text-input title="Bezeichnung" subtype="text"
+								:model-value="installedComponent.name" @update:model-value="
+		updateState(
+			installedComponentKey,
+			$event,
+			'name',
+		)
+		" />
 							<hr />
-							<openwb-config-proxy
-								:deviceId="installedDevice.id"
-								:deviceType="installedDevice.type"
-								:componentId="installedComponent.id"
-								:componentType="installedComponent.type"
-								:configuration="
-									installedComponent.configuration
-								"
-								@update:configuration="
-									updateConfiguration(
-										installedComponentKey,
-										$event,
-									)
-								"
-							/>
+							<openwb-config-proxy :deviceId="installedDevice.id" :deviceType="installedDevice.type"
+								:deviceVendor="installedDevice.vendor" :componentId="installedComponent.id"
+								:componentType="installedComponent.type" :configuration="installedComponent.configuration
+		" @update:configuration="
+		updateConfiguration(
+			installedComponentKey,
+			$event,
+		)
+		" />
 						</openwb-base-card>
 						<hr />
-						<openwb-base-select-input
-							class="mb-2"
-							v-if="getComponentList(installedDevice.type).length"
-							title="Verfügbare Komponenten"
-							notSelected="Bitte auswählen"
-							:options="getComponentList(installedDevice.type)"
-							:model-value="componentToAdd[installedDevice.id]"
-							@update:model-value="
-								componentToAdd[installedDevice.id] = $event
-							"
-						>
+						<openwb-base-select-input class="mb-2"
+							v-if="getComponentList(installedDevice.vendor, installedDevice.type).length"
+							title="Verfügbare Komponenten" notSelected="Bitte auswählen"
+							:options="getComponentList(installedDevice.vendor, installedDevice.type)"
+							:model-value="componentToAdd[installedDevice.id]" @update:model-value="
+		componentToAdd[installedDevice.id] = $event
+		">
 							<template #append>
 								<span class="col-1">
-									<openwb-base-click-button
-										:class="
-											componentToAdd[
-												installedDevice.id
-											] === undefined
-												? 'btn-outline-success'
-												: 'btn-success clickable'
-										"
-										:disabled="
-											componentToAdd[
-												installedDevice.id
-											] === undefined
-										"
-										@buttonClicked="
-											addComponent(
-												installedDevice.id,
-												installedDevice.type,
-												componentToAdd[
-													installedDevice.id
-												],
-											)
-										"
-									>
-										<font-awesome-icon
-											fixed-width
-											:icon="['fas', 'plus']"
-										/>
+									<openwb-base-click-button :class="componentToAdd[
+			installedDevice.id
+		] === undefined
+			? 'btn-outline-success'
+			: 'btn-success clickable'
+		" :disabled="componentToAdd[
+		installedDevice.id
+		] === undefined
+		" @buttonClicked="
+		addComponent(
+			installedDevice.id,
+			installedDevice.vendor,
+			installedDevice.type,
+			componentToAdd[
+			installedDevice.id
+			],
+		)
+		">
+										<font-awesome-icon fixed-width :icon="['fas', 'plus']" />
 									</openwb-base-click-button>
 								</span>
 							</template>
@@ -255,29 +170,17 @@
 						</openwb-base-alert>
 					</openwb-base-card>
 					<hr v-if="Object.keys(installedDevices).length > 0" />
-					<openwb-base-select-input
-						class="mb-2"
-						title="Verfügbare Geräte"
-						notSelected="Bitte auswählen"
-						:options="getDeviceList()"
-						:model-value="deviceToAdd"
-						@update:model-value="deviceToAdd = $event"
-					>
+					<openwb-base-select-input title="Hersteller" notSelected="Bitte auswählen" :groups="vendorList"
+						v-model="selectedVendor" />
+					<openwb-base-select-input title="Verfügbare Geräte" notSelected="Bitte auswählen"
+						:disabled="selectedVendor === undefined" :options="deviceList" v-model="deviceToAdd">
 						<template #append>
 							<span class="col-1">
-								<openwb-base-click-button
-									:class="
-										deviceToAdd === undefined
-											? 'btn-outline-success'
-											: 'btn-success clickable'
-									"
-									:disabled="deviceToAdd === undefined"
-									@buttonClicked="addDevice"
-								>
-									<font-awesome-icon
-										fixed-width
-										:icon="['fas', 'plus']"
-									/>
+								<openwb-base-click-button :class="deviceToAdd === undefined
+			? 'btn-outline-success'
+			: 'btn-success clickable'
+		" :disabled="deviceToAdd === undefined" @buttonClicked="addDevice">
+									<font-awesome-icon fixed-width :icon="['fas', 'plus']" />
 								</openwb-base-click-button>
 							</span>
 						</template>
@@ -319,12 +222,8 @@
 				</div>
 			</openwb-base-card>
 
-			<openwb-base-submit-buttons
-				formName="hardwareInstallationForm"
-				@save="$emit('save')"
-				@reset="$emit('reset')"
-				@defaults="$emit('defaults')"
-			/>
+			<openwb-base-submit-buttons formName="hardwareInstallationForm" @save="$emit('save')"
+				@reset="$emit('reset')" @defaults="$emit('defaults')" />
 		</form>
 	</div>
 </template>
@@ -379,6 +278,7 @@ export default {
 				"openWB/system/device/+/component/+/config",
 				"openWB/system/configurable/devices_components",
 			],
+			selectedVendor: undefined,
 			deviceToAdd: undefined,
 			showDeviceRemoveModal: false,
 			modalDevice: undefined,
@@ -400,6 +300,56 @@ export default {
 				return this.getWildcardTopics(
 					"openWB/system/device/+/component/+/config",
 				);
+			},
+		},
+		vendorList: {
+			get() {
+				if (
+					this.$store.state.mqtt[
+					"openWB/system/configurable/devices_components"
+					] === undefined
+				) {
+					return [];
+				}
+				return Object.entries(
+					this.$store.state.mqtt[
+					"openWB/system/configurable/devices_components"
+					],
+				)
+					.map(([groupKey, group]) => {
+						return {
+							label: group.group_name,
+							options: Object.entries(group.vendors)
+								.map(([vendorKey, vendor]) => {
+									return {
+										value: [groupKey, vendorKey],
+										text: vendor.vendor_name,
+									};
+								})
+								.sort((a, b) => a.text.localeCompare(b.text)),
+						};
+					})
+					.sort((a, b) => -a.label.localeCompare(b.label)); // reverse order to have "openWB" at the top
+			},
+		},
+		deviceList: {
+			get() {
+				if (this.selectedVendor === undefined) {
+					return [];
+				}
+				let [groupKey, vendorKey] = this.selectedVendor;
+				return Object.entries(
+					this.$store.state.mqtt[
+						"openWB/system/configurable/devices_components"
+					][groupKey].vendors[vendorKey].devices,
+				)
+					.map(([deviceKey, device]) => {
+						return {
+							value: [vendorKey, deviceKey],
+							text: device.device_name,
+						};
+					})
+					.sort((a, b) => a.text.localeCompare(b.text));
 			},
 		},
 	},
@@ -442,7 +392,8 @@ export default {
 			this.$emit("sendCommand", {
 				command: "addDevice",
 				data: {
-					type: this.deviceToAdd,
+					vendor: this.deviceToAdd[0],
+					type: this.deviceToAdd[1],
 				},
 			});
 		},
@@ -465,17 +416,13 @@ export default {
 				});
 			}
 		},
-		getDeviceList() {
-			return this.$store.state.mqtt[
-				"openWB/system/configurable/devices_components"
-			];
-		},
-		addComponent(deviceId, deviceType, componentType) {
+		addComponent(deviceId, deviceVendor, deviceType, componentType) {
 			this.$emit("sendCommand", {
 				command: "addComponent",
 				data: {
 					deviceId: deviceId,
 					deviceType: deviceType,
+					deviceVendor: deviceVendor,
 					type: componentType,
 				},
 			});
@@ -502,12 +449,12 @@ export default {
 			if (event == "confirm") {
 				console.info(
 					"request removal of component '" +
-						this.modalComponent.id +
-						"' from device '" +
-						this.modalComponent.deviceId +
-						"' type '" +
-						this.modalComponent.type +
-						"'",
+					this.modalComponent.id +
+					"' from device '" +
+					this.modalComponent.deviceId +
+					"' type '" +
+					this.modalComponent.type +
+					"'",
 				);
 				this.$emit("sendCommand", {
 					command: "removeComponent",
@@ -515,15 +462,43 @@ export default {
 				});
 			}
 		},
-		getComponentList(deviceType) {
-			if (deviceType === undefined) {
+		getComponentList(vendorKey, deviceKey) {
+			if (vendorKey === undefined || deviceKey === undefined) {
 				return [];
 			}
-			console.debug("finding components for '" + deviceType + "'");
-			let myDevice = this.$store.state.mqtt[
+			console.debug("finding components for", vendorKey, deviceKey);
+			let deviceComponents = [];
+			Object.entries(
+				this.$store.state.mqtt[
 				"openWB/system/configurable/devices_components"
-			].find((device) => device.value === deviceType);
-			return myDevice.component;
+				],
+			).every(([groupKey, group]) => {
+				console.log("searching in group", groupKey);
+				if (group.vendors[vendorKey] !== undefined) {
+					if (
+						group.vendors[vendorKey].devices[deviceKey] !==
+						undefined
+					) {
+						let components = Object.entries(
+							group.vendors[vendorKey].devices[deviceKey].components
+						).map(([componentKey, component]) => {
+							return {
+								value: componentKey,
+								text: component.component_name,
+							};
+						});
+						console.log(
+							"found components",
+							components,
+						);
+						deviceComponents = components;
+					}
+					return false;
+				}
+				return true;
+			});
+			console.log("result", deviceComponents);
+			return deviceComponents;
 		},
 		updateConfiguration(key, event) {
 			console.debug("updateConfiguration", key, event);
